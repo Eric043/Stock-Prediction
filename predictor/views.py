@@ -88,26 +88,29 @@ def index(request):
 
 def predict(request):
     if request.method == 'POST':
-        ticker = request.POST.get('ticker')
-        start_date = request.POST.get('start_date')
-        end_date = request.POST.get('end_date')
-        
-        actual_stock_price, predicted_stock_price, error = train_and_predict(ticker, start_date, end_date)
-        
-        if error:
-            return JsonResponse({'error': error})
-        
-        img_str = plot_results(actual_stock_price, predicted_stock_price, ticker)
-        
-        actual_recent_price = f"{actual_stock_price[-1][0]:.2f}" if actual_stock_price is not None and len(actual_stock_price) > 0 else "N/A"
-        predicted_recent_price = f"{predicted_stock_price[-1][0]:.2f}" if predicted_stock_price is not None and len(predicted_stock_price) > 0 else "N/A"
-        
-        return JsonResponse({
-            'image': img_str,
-            'actual_recent_price': actual_recent_price,
-            'predicted_recent_price': predicted_recent_price
-        })
-    return JsonResponse({'error': 'Invalid request method.'})
+        try:
+            ticker = request.POST.get('ticker')
+            start_date = request.POST.get('start_date')
+            end_date = request.POST.get('end_date')
+
+            actual_stock_price, predicted_stock_price, error = train_and_predict(ticker, start_date, end_date)
+
+            if error:
+                return JsonResponse({'error': error}, status=500)
+
+            img_str = plot_results(actual_stock_price, predicted_stock_price, ticker)
+
+            actual_recent_price = f"{actual_stock_price[-1][0]:.2f}" if actual_stock_price is not None and len(actual_stock_price) > 0 else "N/A"
+            predicted_recent_price = f"{predicted_stock_price[-1][0]:.2f}" if predicted_stock_price is not None and len(predicted_stock_price) > 0 else "N/A"
+
+            return JsonResponse({
+                'image': img_str,
+                'actual_recent_price': actual_recent_price,
+                'predicted_recent_price': predicted_recent_price
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    return JsonResponse({'error': 'Invalid request method.'}, status=400)
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # '2' will suppress INFO and WARNING logs, showing only ERROR logs
 
