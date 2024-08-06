@@ -1,6 +1,6 @@
 Cython
 pyproject.toml
-Flask
+Django
 gunicorn
 pandas
 requests
