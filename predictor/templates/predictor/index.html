@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Price Predictor</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Additional custom styles */
+        .container {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #result {
+            display: none; /* Hide result section initially */
+            margin-top: 20px;
+        }
+
+        #prediction_image {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            border-width: 0.3em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Stock Price Predictor</h1>
+        <form method="POST" action="/predict/" id="predictForm">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="ticker">Ticker Symbol:</label>
+                <input type="text" class="form-control" id="ticker" name="ticker" required>
+            </div>
+            <div class="form-group">
+                <label for="start_date">Start Date:</label>
+                <input type="date" class="form-control" id="start_date" name="start_date" required>
+            </div>
+            <div class="form-group">
+                <label for="end_date">End Date:</label>
+                <input type="date" class="form-control" id="end_date" name="end_date" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Predict</button>
+        </form>
+
+        <!-- Loading spinner -->
+        <div id="loading" class="text-center mt-3" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <div class="mt-2">Loading, please wait...</div>
+        </div>
+
+        <div id="result">
+            <h2 class="text-center">Prediction Result</h2>
+            <div id="error" class="alert alert-danger" role="alert"></div>
+            <img id="prediction_image" src="" alt="Prediction Image" class="img-fluid">
+            <p class="mt-2">Actual Recent Price: <span id="actual_recent_price"></span></p>
+            <p>Predicted Recent Price: <span id="predicted_recent_price"></span></p>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        document.querySelector('#predictForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            // Show loading spinner
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+
+            const response = await fetch(e.target.action, {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            
+            // Hide loading spinner
+            document.getElementById('loading').style.display = 'none';
+            
+            if (result.error) {
+                document.getElementById('error').textContent = result.error;
+                document.getElementById('prediction_image').src = "";
+                document.getElementById('actual_recent_price').textContent = "";
+                document.getElementById('predicted_recent_price').textContent = "";
+                document.getElementById('result').style.display = 'none';
+            } else {
+                document.getElementById('error').textContent = "";
+                document.getElementById('prediction_image').src = "data:image/png;base64," + result.image;
+                document.getElementById('actual_recent_price').textContent = result.actual_recent_price;
+                document.getElementById('predicted_recent_price').textContent = result.predicted_recent_price;
+                document.getElementById('result').style.display = 'block';
+            }
+        };
+    </script>
+</body>
+</html>
