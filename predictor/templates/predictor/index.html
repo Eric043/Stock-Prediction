@@ -76,42 +76,37 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
-        document.querySelector('form').onsubmit = async function(e) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    
-    try {
-        const response = await fetch(e.target.action, {
-            method: 'POST',
-            body: formData
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json();
-
-        if (result.error) {
-            document.getElementById('error').textContent = result.error;
-            document.getElementById('prediction_image').src = "";
-            document.getElementById('actual_recent_price').textContent = "";
-            document.getElementById('predicted_recent_price').textContent = "";
+        document.querySelector('#predictForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            // Show loading spinner
+            document.getElementById('loading').style.display = 'block';
             document.getElementById('result').style.display = 'none';
-        } else {
-            document.getElementById('error').textContent = "";
-            document.getElementById('prediction_image').src = "data:image/png;base64," + result.image;
-            document.getElementById('actual_recent_price').textContent = result.actual_recent_price;
-            document.getElementById('predicted_recent_price').textContent = result.predicted_recent_price;
-            document.getElementById('result').style.display = 'block';
-        }
-    } catch (error) {
-        console.error('Fetch error:', error);
-        document.getElementById('error').textContent = 'An unexpected error occurred. Please try again later.';
-    }
-};
 
-
+            const response = await fetch(e.target.action, {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            
+            // Hide loading spinner
+            document.getElementById('loading').style.display = 'none';
+            
+            if (result.error) {
+                document.getElementById('error').textContent = result.error;
+                document.getElementById('prediction_image').src = "";
+                document.getElementById('actual_recent_price').textContent = "";
+                document.getElementById('predicted_recent_price').textContent = "";
+                document.getElementById('result').style.display = 'none';
+            } else {
+                document.getElementById('error').textContent = "";
+                document.getElementById('prediction_image').src = "data:image/png;base64," + result.image;
+                document.getElementById('actual_recent_price').textContent = result.actual_recent_price;
+                document.getElementById('predicted_recent_price').textContent = result.predicted_recent_price;
+                document.getElementById('result').style.display = 'block';
+            }
+        };
     </script>
 </body>
 </html>
