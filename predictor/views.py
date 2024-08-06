@@ -48,12 +48,12 @@ def train_and_predict(ticker, start_date, end_date):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
     
     model = Sequential()
-    model.add(LSTM(units=50, return_sequences=True, input_shape=(X_train.shape[1], 1)))
-    model.add(LSTM(units=50))
+    model.add(LSTM(units=20, return_sequences=True, input_shape=(X_train.shape[1], 1)))
+    model.add(LSTM(units=20))
     model.add(Dense(units=1))
     
     model.compile(optimizer='adam', loss='mean_squared_error')
-    model.fit(X_train, y_train, epochs=50, batch_size=32, verbose=0)
+    model.fit(X_train, y_train, epochs=10, batch_size=16, verbose=0)  # Reduced units, epochs, and batch size
     
     predicted_stock_price = model.predict(X_test)
     predicted_stock_price = scaler.inverse_transform(predicted_stock_price.reshape(-1, 1))
@@ -88,29 +88,26 @@ def index(request):
 
 def predict(request):
     if request.method == 'POST':
-        try:
-            ticker = request.POST.get('ticker')
-            start_date = request.POST.get('start_date')
-            end_date = request.POST.get('end_date')
-
-            actual_stock_price, predicted_stock_price, error = train_and_predict(ticker, start_date, end_date)
-
-            if error:
-                return JsonResponse({'error': error}, status=500)
-
-            img_str = plot_results(actual_stock_price, predicted_stock_price, ticker)
-
-            actual_recent_price = f"{actual_stock_price[-1][0]:.2f}" if actual_stock_price is not None and len(actual_stock_price) > 0 else "N/A"
-            predicted_recent_price = f"{predicted_stock_price[-1][0]:.2f}" if predicted_stock_price is not None and len(predicted_stock_price) > 0 else "N/A"
-
-            return JsonResponse({
-                'image': img_str,
-                'actual_recent_price': actual_recent_price,
-                'predicted_recent_price': predicted_recent_price
-            })
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
-    return JsonResponse({'error': 'Invalid request method.'}, status=400)
+        ticker = request.POST.get('ticker')
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+        
+        actual_stock_price, predicted_stock_price, error = train_and_predict(ticker, start_date, end_date)
+        
+        if error:
+            return JsonResponse({'error': error})
+        
+        img_str = plot_results(actual_stock_price, predicted_stock_price, ticker)
+        
+        actual_recent_price = f"{actual_stock_price[-1][0]:.2f}" if actual_stock_price is not None and len(actual_stock_price) > 0 else "N/A"
+        predicted_recent_price = f"{predicted_stock_price[-1][0]:.2f}" if predicted_stock_price is not None and len(predicted_stock_price) > 0 else "N/A"
+        
+        return JsonResponse({
+            'image': img_str,
+            'actual_recent_price': actual_recent_price,
+            'predicted_recent_price': predicted_recent_price
+        })
+    return JsonResponse({'error': 'Invalid request method.'})
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # '2' will suppress INFO and WARNING logs, showing only ERROR logs
 
