@@ -13,6 +13,10 @@ import matplotlib.pyplot as plt
 import io
 import base64
 
+# Set TensorFlow log level to suppress INFO and WARNING messages
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+tf.get_logger().setLevel('ERROR')
+
 def get_stock_data(ticker, start_date, end_date):
     try:
         data = yf.download(ticker, start=start_date, end=end_date)
@@ -108,8 +112,6 @@ def predict(request):
             'predicted_recent_price': predicted_recent_price
         })
     return JsonResponse({'error': 'Invalid request method.'})
-
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # '2' will suppress INFO and WARNING logs, showing only ERROR logs
 
 # Alternatively, you can use the TensorFlow logger
 tf.get_logger().setLevel('ERROR')
