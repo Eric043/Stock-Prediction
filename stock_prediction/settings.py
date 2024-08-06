@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-usm75v)x4qq8)%j3pvt7x27(efq&92itfug$(v3fjm=6nd98bx
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'stock-prediction-bmrr.onrender.com',  # Add your domain here
+    'stock-prediction-7f9c.onrender.com',  # Add your domain here
     'localhost',  # Typically included for local development
     '127.0.0.1',
 ]
