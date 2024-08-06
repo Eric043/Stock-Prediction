@@ -109,7 +109,7 @@ def predict(request):
         })
     return JsonResponse({'error': 'Invalid request method.'})
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # '2' will suppress INFO and WARNING logs, showing only ERROR logs
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # '2' will suppress INFO and WARNING logs, showing only ERROR logs
 
 # Alternatively, you can use the TensorFlow logger
 tf.get_logger().setLevel('ERROR')
