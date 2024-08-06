@@ -10,4 +10,3 @@ tensorflow
 yfinance
 matplotlib
 numpy
-bootstrap
