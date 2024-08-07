@@ -15,7 +15,7 @@ import base64
 
 # Set TensorFlow log level to suppress INFO and WARNING messages
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '4'
-os.environ['TF_TRT_DISABLE'] = '1'  # Disable TensorRT integration
+os.environ['TF_TRT_DISABLE'] = '2'  # Disable TensorRT integration
 tf.get_logger().setLevel('ERROR')
 
 def get_stock_data(ticker, start_date, end_date):
